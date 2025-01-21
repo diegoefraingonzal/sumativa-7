@@ -13,32 +13,41 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 })
 export class HomePage {
   taskForm: FormGroup;
-  tasks: { name: string; date: string; completed: boolean }[] = [];
+  tasks: Array<{ title: string; dueDate: string; done: boolean }> = [];
+  filter: string = 'all';
 
   constructor(private fb: FormBuilder) {
     this.taskForm = this.fb.group({
-      name: ['', Validators.required],
-      date: ['', Validators.required],
-      completed: [false]
+      title: ['', [Validators.required, Validators.minLength(3)]],
+      dueDate: ['', Validators.required]
     });
   }
 
   addTask() {
     if (this.taskForm.valid) {
       this.tasks.push({
-        name: this.taskForm.value.name,
-        date: this.taskForm.value.date,
-        completed: this.taskForm.value.completed
+        title: this.taskForm.value.title,
+        dueDate: this.taskForm.value.dueDate,
+        done: false
       });
       this.taskForm.reset();
     }
   }
 
-  toggleTaskCompletion(index: number) {
-    this.tasks[index].completed = !this.tasks[index].completed;
+  toggleCompletion(index: number) {
+    this.tasks[index].done = !this.tasks[index].done;
   }
 
-  removeTask(index: number) {
+  deleteTask(index: number) {
     this.tasks.splice(index, 1);
+  }
+
+  getFilteredTasks() {
+    if (this.filter === 'completed') {
+      return this.tasks.filter(task => task.done);
+    } else if (this.filter === 'pending') {
+      return this.tasks.filter(task => !task.done);
+    }
+    return this.tasks;
   }
 }
